@@ -1,13 +1,20 @@
 import pymongo, json
-from flask import Flask
+import pdb
+from flask import *
 app = Flask(__name__)
 
 client = pymongo.MongoClient()
 iterative=0
+@app.route('/')
+def index():
+	return render_template('index.html')
 
 
-@app.route("/<campusName>/<meetingDay>")
-def display(campusName, meetingDay):
+@app.route("/search", methods=['GET', 'POST'])
+def display():
+	
+	meetingDay = request.form["meetingDay"]
+	campusName = request.form["campusName"]
 	cursor = client.rutgers.classinfo.aggregate([ {"$unwind": "$sections"}, {"$unwind": "$sections.meetingTimes"}, { "$match": { "sections.meetingTimes.campusName": campusName}},{"$match": { "sections.meetingTimes.meetingDay": meetingDay}}])
 	final = []
 	for i in cursor:
