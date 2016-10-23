@@ -1,6 +1,12 @@
 import pymongo, json
+from flask import Flask
+app = Flask(__name__)
+
 client = pymongo.MongoClient()
 iterative=0
+
+
+@app.route("/<campusName>/<meetingDay>")
 def display(campusName, meetingDay):
 	cursor = client.rutgers.classinfo.aggregate([ {"$unwind": "$sections"}, {"$unwind": "$sections.meetingTimes"}, { "$match": { "sections.meetingTimes.campusName": campusName}},{"$match": { "sections.meetingTimes.meetingDay": meetingDay}}])
 	final = []
@@ -22,4 +28,6 @@ def display(campusName, meetingDay):
 	return json.dumps(final)
 		
 
-display(cN,mD)
+if __name__=="__main__":
+	app.run(debug=True)
+
